@@ -1,0 +1,45 @@
+body {
+  background: linear-gradient(to bottom right, #544a7d, #ffd452);
+  height: 100vh;
+}
+
+header {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+header > h1 {
+  font-size: 3rem;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#game-board {
+  display: grid;
+  grid-template: repeat(3, 100px) / repeat(3, 100px);
+  gap: 10px;
+}
+
+.play-button {
+  background-color: rgba(0, 0, 0, 0);
+  border: 5px solid #544a7d; 
+  border-radius: 15px;
+  font-size: 5rem;
+  text-align: center;
+}
+
+#point-display {
+  display: flex;
+  gap: 50px;
+}
+
+#point-display > p {
+  display: block;
+  font-size: 3rem;
+}
