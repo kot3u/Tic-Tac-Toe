@@ -43,3 +43,11 @@ main {
   display: block;
   font-size: 3rem;
 }
+
+.cross {
+  background-color: black;
+}
+
+.circle {
+  background-color: red;
+}

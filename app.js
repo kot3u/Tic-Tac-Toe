@@ -1,30 +1,68 @@
-const PlayerFactory = (name, marker) => {
-  const playerName = name;
-  const playerMarker = marker;
-  return { playerName, playerMarker };
-};
+const MakePlayers = (name, marker) => ({ name, marker });
 
 const GameBoard = (() => {
   const board = ["", "", "", "", "", "", "", "", ""];
-  const buttonsNodeList = document.querySelectorAll(".play-button");
-  const buttonsArr = Array.from(buttonsNodeList);
-  const render = () => {
-    buttonsArr.forEach((button, index) => {
-      button.textContent = board[index];
-    });
+
+  const renderBoard = () => {
+    const buttonsContainer = document.querySelector("#game-board");
+    for (let i = 0; i <= 8; i += 1) {
+      const button = document.createElement("div");
+      button.classList.add("play-button");
+      button.id = i;
+      buttonsContainer.appendChild(button);
+    }
+  };
+
+  const setMarker = (index, marker) => {
+    board[index] = marker;
   };
 
   return {
-    buttonsArr,
     board,
-    render,
+    setMarker,
+    renderBoard,
   };
+})();
+
+const display = (() => {
+  const addClass = (marker, e) => {
+    if (marker === "X") {
+      e.target.classList.add("cross");
+    } else if (marker === "O") {
+      e.target.classList.add("circle");
+    }
+  };
+
+  const showWinner = (player) => {
+    const gameHeader = document.querySelector("#header");
+    gameHeader.textContent = `The winner is: ${player.name}`;
+  };
+
+  return { showWinner, addClass };
 })();
 
 const Game = (() => {
   let playerIndex = 0;
-  let GameOver = false;
   let players = [];
+  
+  const createPlayers = () => {
+    const playerOneName = document.querySelector("#player-one-input").value;
+    const playerTwoName = document.querySelector("#player-two-input").value;
+    players = [
+      MakePlayers(playerOneName, "X"),
+      MakePlayers(playerTwoName, "O"),
+    ];
+    return players;
+  };
+
+  const changeIndex = () => {
+    if (playerIndex === 0) {
+      playerIndex += 1;
+      return playerIndex;
+    }
+    playerIndex -= 1;
+    return playerIndex;
+  };
 
   const checkWin = () => {
     const winningCombination = [
@@ -38,57 +76,51 @@ const Game = (() => {
       [2, 4, 6],
     ];
 
-    for(let i = 0; i < winningCombination.length; i += 1){
-      const [a, b, c] = winningCombination[i]
+    for (let i = 0; i < winningCombination.length; i += 1) {
+      const [a, b, c] = winningCombination[i];
       if (
         GameBoard.board[a] === GameBoard.board[b] &&
         GameBoard.board[a] === GameBoard.board[c] &&
         GameBoard.board[a] !== ""
-      ){
-        return true;
+      ) {
+        display.showWinner(players[playerIndex]);
       }
-    };
+    }
     return false;
   };
 
-  const changeIndex = () => {
-    if (playerIndex === 0) {
-      playerIndex += 1;
-      return playerIndex;
-    }
-    playerIndex -= 1;
-    return playerIndex;
-  };
-
-  const clickedButton = (e) => {
-    if (e.target.textContent === "") {
-      GameBoard.board[e.target.id] = players[playerIndex].playerMarker;
-      GameBoard.render();
+  const clickEvent = (e) => {
+    if (
+      !(
+        e.target.classList.contains("cross") ||
+        e.target.classList.contains("circle")
+      )
+    ) {
+      GameBoard.setMarker(e.target.id, (players[playerIndex]).marker);
+      display.addClass((players[playerIndex]).marker, e);
       changeIndex();
-      if(checkWin()) {
-        alert('game over')
-      }
+      checkWin();
     }
   };
 
   const listenForClicks = () => {
-    GameBoard.buttonsArr.forEach((button) => {
-      button.addEventListener("click", clickedButton);
+    const buttons = document.querySelectorAll(".play-button");
+    const buttonsArr = Array.from(buttons);
+    buttonsArr.forEach((element) => {
+      element.addEventListener("click", clickEvent);
     });
   };
 
-  const Start = () => {
-    players = [
-      PlayerFactory(document.querySelector("#player-one-input"), "X"),
-      PlayerFactory(document.querySelector("#player-two-input"), "O"),
-    ];
+  const start = () => {
+    GameBoard.renderBoard();
+    createPlayers();
     listenForClicks();
-    return players;
   };
-  return { Start, checkWin, GameOver };
+
+  return {
+    start,
+  };
 })();
 
 const StartButton = document.querySelector("#start-button");
-StartButton.addEventListener("click", () => {
-  Game.Start();
-});
+StartButton.addEventListener("click", Game.start);
