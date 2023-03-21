@@ -2,9 +2,22 @@ const MakePlayers = (name, marker) => ({ name, marker });
 
 const GameBoard = (() => {
   const board = ["", "", "", "", "", "", "", "", ""];
+  const buttonsContainer = document.querySelector("#game-board");
+
+  const setMarker = (index, marker) => {
+    board[index] = marker;
+  };
+
+  const restart = () => {
+    while(buttonsContainer.firstChild){
+      buttonsContainer.removeChild(buttonsContainer.firstChild);
+    }
+    board.forEach((element, index) => {
+      setMarker(index, '');
+    });
+  }
 
   const renderBoard = () => {
-    const buttonsContainer = document.querySelector("#game-board");
     for (let i = 0; i <= 8; i += 1) {
       const button = document.createElement("div");
       button.classList.add("play-button");
@@ -13,18 +26,16 @@ const GameBoard = (() => {
     }
   };
 
-  const setMarker = (index, marker) => {
-    board[index] = marker;
-  };
-
   return {
     board,
     setMarker,
     renderBoard,
+    restart,
   };
 })();
 
 const display = (() => {
+  const gameHeader = document.querySelector("#header");
   const addClass = (marker, e) => {
     if (marker === "X") {
       e.target.classList.add("cross");
@@ -32,19 +43,25 @@ const display = (() => {
       e.target.classList.add("circle");
     }
   };
-
   const showWinner = (player) => {
-    const gameHeader = document.querySelector("#header");
-    gameHeader.textContent = `The winner is: ${player.name}`;
+    gameHeader.textContent = `The winner is: ${player.name}!`;
   };
 
-  return { showWinner, addClass };
+  const showTie = () => {
+    gameHeader.textContent = "Its a tie!";
+  };
+
+  const restart = (players) => {
+    gameHeader.textContent = `${(players[0]).name} vs ${(players[1]).name}`;
+  };
+
+  return { restart, showTie, showWinner, addClass };
 })();
 
 const Game = (() => {
   let playerIndex = 0;
   let players = [];
-  
+
   const createPlayers = () => {
     const playerOneName = document.querySelector("#player-one-input").value;
     const playerTwoName = document.querySelector("#player-two-input").value;
@@ -62,6 +79,21 @@ const Game = (() => {
     }
     playerIndex -= 1;
     return playerIndex;
+  };
+
+  const endGame = () => {
+    const buttons = document.querySelectorAll(".play-button");
+    const buttonsArr = Array.from(buttons);
+    buttonsArr.forEach((element) => {
+      element.removeEventListener("click", clickEvent);
+    });
+  };
+
+  const checkTie = () => {
+    if (!GameBoard.board.includes("")) {
+      endGame();
+      display.showTie();
+    }
   };
 
   const checkWin = () => {
@@ -84,9 +116,10 @@ const Game = (() => {
         GameBoard.board[a] !== ""
       ) {
         display.showWinner(players[playerIndex]);
+        endGame();
       }
     }
-    return false;
+    checkTie();
   };
 
   const clickEvent = (e) => {
@@ -96,8 +129,8 @@ const Game = (() => {
         e.target.classList.contains("circle")
       )
     ) {
-      GameBoard.setMarker(e.target.id, (players[playerIndex]).marker);
-      display.addClass((players[playerIndex]).marker, e);
+      GameBoard.setMarker(e.target.id, players[playerIndex].marker);
+      display.addClass(players[playerIndex].marker, e);
       changeIndex();
       checkWin();
     }
@@ -114,13 +147,21 @@ const Game = (() => {
   const start = () => {
     GameBoard.renderBoard();
     createPlayers();
+    display.restart(players);
     listenForClicks();
   };
 
+  const restart = () => {
+    playerIndex = 0
+    GameBoard.restart();
+    start();
+    return playerIndex;
+  };
+
   return {
-    start,
+    restart,
   };
 })();
 
 const StartButton = document.querySelector("#start-button");
-StartButton.addEventListener("click", Game.start);
+StartButton.addEventListener("click", Game.restart);
