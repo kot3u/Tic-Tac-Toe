@@ -96,9 +96,9 @@ const Game = (() => {
 
   const checkTie = () => {
     if (!GameBoard.board.includes("")) {
-      endGame();
-      display.showTie();
+      return true
     }
+    return false
   };
 
   const checkWin = () => {
@@ -120,12 +120,22 @@ const Game = (() => {
         GameBoard.board[a] === GameBoard.board[c] &&
         GameBoard.board[a] !== ""
       ) {
-        display.showWinner(players[playerIndex]);
-        endGame();
+        return true
       }
     }
-    checkTie();
+    return false
   };
+
+  const handleWin = () => {
+    if(checkWin()){
+      endGame();
+      display.showWinner(players[playerIndex]);
+    }
+    else if(checkTie()){
+      endGame();
+      display.showTie();
+    }
+  }
 
   const makeMove = (index) => {
     const buttons = document.querySelectorAll(".play-button");
@@ -138,8 +148,8 @@ const Game = (() => {
     ) {
       GameBoard.setMarker(index, players[playerIndex].marker);
       display.addClass(players[playerIndex].marker, buttonsArr[index]);
+      handleWin();
       changeIndex();
-      checkWin();
     }
   }
 
@@ -164,8 +174,8 @@ const Game = (() => {
     ) {
       GameBoard.setMarker(e.target.id, players[playerIndex].marker);
       display.addClass(players[playerIndex].marker, e.target);
+      handleWin();
       changeIndex();
-      checkWin();
       handleBot();
     }
   };
