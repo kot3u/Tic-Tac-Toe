@@ -15,13 +15,21 @@
   <main>
     <div class="Start-container">
       <div class="inputs">
-        <div class="cell">      
+        <div class="cell"> 
           <label for="player-one-input"> Please put player one name:</label>
           <input type="text" name="player-one-input" id="player-one-input" class="name-input" value="Player 1">
+          <div class="checkbox-cell">
+            <label for="bot">Computer player</label>
+            <input type="checkbox" name="bot" id="player-one-is-bot">
+          </div>
         </div>
         <div class="cell">
           <label for="player-two-input"> Please put player two name:</label>
           <input type="text" name="player-two-input" id="player-two-input" class="name-input" value="Player 2">
+          <div class="checkbox-cell">
+            <label for="bot">Computer player</label>
+            <input type="checkbox" name="bot" id="player-two-is-bot">
+          </div>
         </div>
       </div>
       <button id="start-button">Start new game!</button>

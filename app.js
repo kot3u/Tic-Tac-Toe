@@ -1,4 +1,4 @@
-const MakePlayers = (name, marker) => ({ name, marker });
+const MakePlayers = (name, marker, bot) => ({ name, marker, bot });
 
 const GameBoard = (() => {
   const board = ["", "", "", "", "", "", "", "", ""];
@@ -38,9 +38,9 @@ const display = (() => {
   const gameHeader = document.querySelector("#header");
   const addClass = (marker, e) => {
     if (marker === "X") {
-      e.target.classList.add("cross");
+      e.classList.add("cross");
     } else if (marker === "O") {
-      e.target.classList.add("circle");
+      e.classList.add("circle");
     }
   };
   const showWinner = (player) => {
@@ -59,15 +59,18 @@ const display = (() => {
 })();
 
 const Game = (() => {
+  let gameOver = 0;
   let playerIndex = 0;
   let players = [];
 
   const createPlayers = () => {
     const playerOneName = document.querySelector("#player-one-input").value;
     const playerTwoName = document.querySelector("#player-two-input").value;
+    const playerOneIsBot = document.querySelector('#player-one-is-bot').checked;
+    const playerTwoIsBot = document.querySelector('#player-two-is-bot').checked;
     players = [
-      MakePlayers(playerOneName, "X"),
-      MakePlayers(playerTwoName, "O"),
+      MakePlayers(playerOneName, "X", playerOneIsBot),
+      MakePlayers(playerTwoName, "O", playerTwoIsBot),
     ];
     return players;
   };
@@ -87,6 +90,8 @@ const Game = (() => {
     buttonsArr.forEach((element) => {
       element.removeEventListener("click", clickEvent);
     });
+    gameOver = 1;
+    return gameOver
   };
 
   const checkTie = () => {
@@ -122,6 +127,34 @@ const Game = (() => {
     checkTie();
   };
 
+  const makeMove = (index) => {
+    const buttons = document.querySelectorAll(".play-button");
+    const buttonsArr = Array.from(buttons);
+    if (
+      !(
+        (buttonsArr[index]).classList.contains("cross") ||
+        (buttonsArr[index]).classList.contains("circle")
+      )
+    ) {
+      GameBoard.setMarker(index, players[playerIndex].marker);
+      display.addClass(players[playerIndex].marker, buttonsArr[index]);
+      changeIndex();
+      checkWin();
+    }
+  }
+
+  const makeRandomDecision = () => {
+    const randomDecision = Math.floor(Math.random() * 9)
+      return randomDecision
+  }
+
+  const handleBot = () => {
+    while((players[playerIndex]).bot && gameOver === 0){
+      const randomDecision = makeRandomDecision()
+      makeMove(randomDecision)
+    }
+  }
+
   const clickEvent = (e) => {
     if (
       !(
@@ -130,9 +163,10 @@ const Game = (() => {
       )
     ) {
       GameBoard.setMarker(e.target.id, players[playerIndex].marker);
-      display.addClass(players[playerIndex].marker, e);
+      display.addClass(players[playerIndex].marker, e.target);
       changeIndex();
       checkWin();
+      handleBot();
     }
   };
 
@@ -149,13 +183,14 @@ const Game = (() => {
     createPlayers();
     display.showPlayerNames(players);
     listenForClicks();
+    handleBot();
   };
 
   const restart = () => {
     playerIndex = 0;
+    gameOver = 0;
     GameBoard.restart();
     start();
-    return playerIndex;
   };
 
   return {
@@ -165,3 +200,4 @@ const Game = (() => {
 
 const StartButton = document.querySelector("#start-button");
 StartButton.addEventListener("click", Game.restart);
+
