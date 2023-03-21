@@ -9,13 +9,13 @@ const GameBoard = (() => {
   };
 
   const restart = () => {
-    while(buttonsContainer.firstChild){
+    while (buttonsContainer.firstChild) {
       buttonsContainer.removeChild(buttonsContainer.firstChild);
     }
     board.forEach((element, index) => {
-      setMarker(index, '');
+      setMarker(index, "");
     });
-  }
+  };
 
   const renderBoard = () => {
     for (let i = 0; i <= 8; i += 1) {
@@ -51,11 +51,11 @@ const display = (() => {
     gameHeader.textContent = "Its a tie!";
   };
 
-  const restart = (players) => {
-    gameHeader.textContent = `${(players[0]).name} vs ${(players[1]).name}`;
+  const showPlayerNames = (players) => {
+    gameHeader.textContent = `${players[0].name} vs ${players[1].name}`;
   };
 
-  return { restart, showTie, showWinner, addClass };
+  return { showPlayerNames, showTie, showWinner, addClass };
 })();
 
 const Game = (() => {
@@ -147,12 +147,12 @@ const Game = (() => {
   const start = () => {
     GameBoard.renderBoard();
     createPlayers();
-    display.restart(players);
+    display.showPlayerNames(players);
     listenForClicks();
   };
 
   const restart = () => {
-    playerIndex = 0
+    playerIndex = 0;
     GameBoard.restart();
     start();
     return playerIndex;

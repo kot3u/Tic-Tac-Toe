@@ -13,14 +13,22 @@
     <h1 id="header">Tic Tac toe game!</h1>
   </header>
   <main>
-    <div id="Start-input">
-      <label for="player-one-input"> Please put player one name:</label>
-      <input type="text" name="player-one-input" id="player-one-input">
-      <label for="player-two-input"> Please put player two name:</label>
-      <input type="text" name="player-two-input" id="player-two-input">
-      <button id="start-button">Start game!</button>
+    <div class="Start-container">
+      <div class="inputs">
+        <div class="cell">      
+          <label for="player-one-input"> Please put player one name:</label>
+          <input type="text" name="player-one-input" id="player-one-input" class="name-input" value="Player 1">
+        </div>
+        <div class="cell">
+          <label for="player-two-input"> Please put player two name:</label>
+          <input type="text" name="player-two-input" id="player-two-input" class="name-input" value="Player 2">
+        </div>
+      </div>
+      <button id="start-button">Start new game!</button>
     </div>
-    <div id="game-board">
+    <div class="game-board-container">
+      <div id="game-board">
+      </div>
     </div>
   </main>
 
