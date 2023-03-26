@@ -66,8 +66,8 @@ const Game = (() => {
   const createPlayers = () => {
     const playerOneName = document.querySelector("#player-one-input").value;
     const playerTwoName = document.querySelector("#player-two-input").value;
-    const playerOneIsBot = document.querySelector('#player-one-is-bot').checked;
-    const playerTwoIsBot = document.querySelector('#player-two-is-bot').checked;
+    const playerOneIsBot = document.querySelector("#player-one-is-bot").checked;
+    const playerTwoIsBot = document.querySelector("#player-two-is-bot").checked;
     players = [
       MakePlayers(playerOneName, "X", playerOneIsBot),
       MakePlayers(playerTwoName, "O", playerTwoIsBot),
@@ -75,13 +75,13 @@ const Game = (() => {
     return players;
   };
 
-  const changeIndex = () => {
-    if (playerIndex === 0) {
-      playerIndex += 1;
-      return playerIndex;
+  const changeIndex = (index) => {
+    if (index === 0) {
+      index += 1;
+      return index;
     }
-    playerIndex -= 1;
-    return playerIndex;
+    index -= 1;
+    return index;
   };
 
   const endGame = () => {
@@ -91,17 +91,17 @@ const Game = (() => {
       element.removeEventListener("click", clickEvent);
     });
     gameOver = 1;
-    return gameOver
+    return gameOver;
   };
 
   const checkTie = () => {
     if (!GameBoard.board.includes("")) {
-      return true
+      return true;
     }
-    return false
+    return false;
   };
 
-  const checkWin = () => {
+  const checkWin = (playerIdx) => {
     const winningCombination = [
       [0, 1, 2],
       [3, 4, 5],
@@ -116,54 +116,124 @@ const Game = (() => {
     for (let i = 0; i < winningCombination.length; i += 1) {
       const [a, b, c] = winningCombination[i];
       if (
+        playerIdx === 0 &&
         GameBoard.board[a] === GameBoard.board[b] &&
         GameBoard.board[a] === GameBoard.board[c] &&
-        GameBoard.board[a] !== ""
+        GameBoard.board[a] === "X"
       ) {
-        return true
+        return true;
+      }
+      if (
+        playerIdx === 1 &&
+        GameBoard.board[a] === GameBoard.board[b] &&
+        GameBoard.board[a] === GameBoard.board[c] &&
+        GameBoard.board[a] === "O"
+      ) {
+        return true;
       }
     }
-    return false
+    return false;
   };
 
   const handleWin = () => {
-    if(checkWin()){
+    if (checkWin(playerIndex)) {
       endGame();
       display.showWinner(players[playerIndex]);
-    }
-    else if(checkTie()){
+    } else if (checkTie()) {
       endGame();
       display.showTie();
     }
-  }
+  };
 
   const makeMove = (index) => {
     const buttons = document.querySelectorAll(".play-button");
     const buttonsArr = Array.from(buttons);
     if (
       !(
-        (buttonsArr[index]).classList.contains("cross") ||
-        (buttonsArr[index]).classList.contains("circle")
+        buttonsArr[index].classList.contains("cross") ||
+        buttonsArr[index].classList.contains("circle")
       )
     ) {
       GameBoard.setMarker(index, players[playerIndex].marker);
       display.addClass(players[playerIndex].marker, buttonsArr[index]);
       handleWin();
-      changeIndex();
+      playerIndex = changeIndex(playerIndex);
     }
-  }
+  };
 
   const makeRandomDecision = () => {
-    const randomDecision = Math.floor(Math.random() * 9)
-      return randomDecision
-  }
+    const randomDecision = Math.floor(Math.random() * 9);
+    return randomDecision;
+  };
 
-  const handleBot = () => {
-    while((players[playerIndex]).bot && gameOver === 0){
-      const randomDecision = makeRandomDecision()
-      makeMove(randomDecision)
+  function minimax(board, depth, isMaximazing, temporaryIndex) {
+    const markers = ["X", "O"];
+    if (checkWin(playerIndex)) {
+      return 10 - depth;
+    }
+    if (checkWin(changeIndex(playerIndex))) {
+      return -10 + depth;
+    }
+    if(checkTie()){
+      return 0;
+    }
+
+    if (isMaximazing) {
+      let bestval = -Infinity;
+      GameBoard.board.forEach((element, index) => {
+        if (element === "") {
+          GameBoard.board[index] = markers[temporaryIndex];
+          
+          const score = minimax(GameBoard.board, depth + 1, false, changeIndex(temporaryIndex));
+          GameBoard.board[index] = "";
+          if (score > bestval) {
+            bestval = score;
+          }
+        }
+      });
+      return bestval;
+    }
+
+    if (!isMaximazing) {
+      let bestval = Infinity;
+      GameBoard.board.forEach((element, index) => {
+        if (element === "") {
+          GameBoard.board[index] = markers[temporaryIndex];
+          let score = minimax(GameBoard.board, depth + 1, true, changeIndex(temporaryIndex));
+          GameBoard.board[index] = "";
+          if (score < bestval) {
+            bestval = score;
+          }
+        }
+      });
+      return bestval;
     }
   }
+
+  const makeBestDecision = () => {
+    const markers = ["X", "O"];
+    let Bestscore = -Infinity;
+    let Bestmove;
+    GameBoard.board.forEach((element, index) => {
+      if (element === "") {
+        GameBoard.board[index] = markers[playerIndex];
+        const score = minimax(GameBoard.board, 0, true, playerIndex);
+        GameBoard.board[index] = "";
+        if (score > Bestscore) {
+          Bestscore = score;
+          Bestmove = index;
+        }
+      }
+    });
+    return Bestmove;
+  };
+
+  const handleBot = () => {
+    while (players[playerIndex].bot && gameOver === 0) {
+      const randomDecision = makeBestDecision();
+      makeMove(randomDecision);
+    }
+  };
 
   const clickEvent = (e) => {
     if (
@@ -175,7 +245,7 @@ const Game = (() => {
       GameBoard.setMarker(e.target.id, players[playerIndex].marker);
       display.addClass(players[playerIndex].marker, e.target);
       handleWin();
-      changeIndex();
+      playerIndex = changeIndex(playerIndex);
       handleBot();
     }
   };
@@ -210,4 +280,3 @@ const Game = (() => {
 
 const StartButton = document.querySelector("#start-button");
 StartButton.addEventListener("click", Game.restart);
-
