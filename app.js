@@ -161,11 +161,6 @@ const Game = (() => {
     }
   };
 
-  const makeRandomDecision = () => {
-    const randomDecision = Math.floor(Math.random() * 9);
-    return randomDecision;
-  };
-
   function minimax(board, depth, isMaximazing, temporaryIndex) {
     const markers = ["X", "O"];
     if (checkWin(playerIndex)) {
@@ -174,39 +169,48 @@ const Game = (() => {
     if (checkWin(changeIndex(playerIndex))) {
       return -10 + depth;
     }
-    if(checkTie()){
+    if (checkTie()) {
       return 0;
     }
 
     if (isMaximazing) {
-      let bestval = -Infinity;
+      let bestValue = -Infinity;
       GameBoard.board.forEach((element, index) => {
         if (element === "") {
           GameBoard.board[index] = markers[temporaryIndex];
-          
-          const score = minimax(GameBoard.board, depth + 1, false, changeIndex(temporaryIndex));
+          const score = minimax(
+            GameBoard.board,
+            depth + 1,
+            false,
+            changeIndex(temporaryIndex)
+          );
           GameBoard.board[index] = "";
-          if (score > bestval) {
-            bestval = score;
+          if (score > bestValue) {
+            bestValue = score;
           }
         }
       });
-      return bestval;
+      return bestValue;
     }
 
     if (!isMaximazing) {
-      let bestval = Infinity;
+      let bestValue = Infinity;
       GameBoard.board.forEach((element, index) => {
         if (element === "") {
           GameBoard.board[index] = markers[temporaryIndex];
-          let score = minimax(GameBoard.board, depth + 1, true, changeIndex(temporaryIndex));
+          const score = minimax(
+            GameBoard.board,
+            depth + 1,
+            true,
+            changeIndex(temporaryIndex)
+          );
           GameBoard.board[index] = "";
-          if (score < bestval) {
-            bestval = score;
+          if (score < bestValue) {
+            bestValue = score;
           }
         }
       });
-      return bestval;
+      return bestValue;
     }
   }
 
@@ -230,8 +234,8 @@ const Game = (() => {
 
   const handleBot = () => {
     while (players[playerIndex].bot && gameOver === 0) {
-      const randomDecision = makeBestDecision();
-      makeMove(randomDecision);
+      const botDecision = makeBestDecision();
+      makeMove(botDecision);
     }
   };
 
